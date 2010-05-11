@@ -1,9 +1,12 @@
+#!/usr/bin/python
+
 from distutils.core import setup, Extension
 
 setup(name = 'PySVMLight',
       description = 'Interface to Thorsten Joachims\' SVM-Light',
       ext_modules = [
         Extension('PySVMLight',
-                  sources = ['PySVMLight.c', 'svm_learn_main.c', 'svm_learn.c',
-                             'svm_common.c', 'svm_hideo.c'])
+                  include_dirs = ['lib/'],
+                  sources = ['svmlight.c', 'lib/svm_learn_main.c', 'lib/svm_learn.c',
+                             'lib/svm_common.c', 'lib/svm_hideo.c'])
       ])
