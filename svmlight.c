@@ -57,10 +57,10 @@ static PyMethodDef PySVMLightMethods[] = {
 };
 
 PyMODINIT_FUNC
-initPySVMLight(void)
+initsvmlight(void)
 {
     PyObject *module;
-    module = Py_InitModule("PySVMLight", PySVMLightMethods);
+    module = Py_InitModule("svmlight", PySVMLightMethods);
     if (module == NULL)
         return;
 }
