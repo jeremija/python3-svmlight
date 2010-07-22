@@ -483,6 +483,8 @@ void add_weight_vector_to_linear_model(MODEL *model)
   long i;
   SVECTOR *f;
 
+  if(model->lin_weights != NULL)
+    free(model->lin_weights);
   model->lin_weights=(double *)my_malloc(sizeof(double)*(model->totwords+1));
   clear_vector_n(model->lin_weights,model->totwords);
   for(i=1;i<model->sv_num;i++) {

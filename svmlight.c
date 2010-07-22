@@ -156,7 +156,7 @@ static int unpack_doclist(
     count_doclist(doclist, &max_docs, &max_words);
     (*docs) = (DOC **)malloc(sizeof(DOC*) * max_docs); /* Feature vectors */
     (*label) = (double *)malloc(sizeof(double) * max_docs); /* Target values */
-    words = (WORD *)malloc(sizeof(WORD) * max_words);
+    words = (WORD *)malloc(sizeof(WORD) * (max_words + 1));
 
     (*totwords) = 0;
     iter = PyObject_GetIter(doclist);
@@ -352,6 +352,7 @@ static PyObject *svm_classify(PyObject *self, PyObject *args) {
     while(item = PyIter_Next(iter)) {
         unpack_document(item, words, &doc_label, &queryid, &slackid, &costfactor,
                         &wnum, max_words);
+        Py_DECREF(item);
         if(model->kernel_parm.kernel_type == 0) { /* Linear kernel */
             /* "Check if feature numbers are not larger than in model. Remove
              * feature if necessary" -- svm_classify.c:77 */
@@ -364,11 +365,14 @@ static PyObject *svm_classify(PyObject *self, PyObject *args) {
             free_example(doc, 1);
         } else {
             PyErr_SetString(PyExc_NotImplementedError, "classify not implemented for non-linear kernels");
+            Py_DECREF(iter);
+            free(words);
             return NULL;
         }
         PyList_SetItem(result, docnum, PyFloat_FromDouble(dist));
         docnum++;
     }
     Py_DECREF(iter);
+    free(words);
     return result;
 }
