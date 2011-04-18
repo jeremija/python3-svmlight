@@ -35,6 +35,10 @@ Train a model based on a set of training data. The training data should be in th
 
     >> (<label>, [(<feature>, <value>), ...])
 
+or
+
+    >> (<label>, [(<feature>, <value>), ...], <queryid>)
+
 See examples/data.py for an example of some training data. The result of this call is a model that you can pass to classify().
 
 ::

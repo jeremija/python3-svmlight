@@ -88,7 +88,7 @@ static int unpack_document(
         PyErr_SetString(PyExc_TypeError, "document should be a tuple");
         return 0;
     }
-    if(!PyArg_ParseTuple(docobj, "dO", label, &words_list))
+    if(!PyArg_ParseTuple(docobj, "dO|l", label, &words_list, queryid)) 
         return 0;
     if(!PyList_Check(words_list)) {
         PyErr_SetString(PyExc_TypeError, "expected list of feature pairs");
