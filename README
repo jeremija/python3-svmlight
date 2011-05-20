@@ -1,8 +1,10 @@
 PySVMLight
 ==========
-A Python binding to the popular "SVM-Light" support vector machine library (http://svmlight.joachims.org/) by Thorsten Joachims.
+A Python binding to the popular "SVM-Light" support vector machine library <http://svmlight.joachims.org/> by Thorsten Joachims.
 
 Contact: Bill Cauchois <wcauchois@gmail.com>
+
+Thanks to Lucas Beyer and n0mad for their contributions.
 
 Installation
 ============
