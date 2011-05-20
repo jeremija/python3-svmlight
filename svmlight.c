@@ -123,11 +123,11 @@ static void count_doclist(
     if(max_words != NULL) {
         *max_words = 0;
         iter = PyObject_GetIter(doclist);
-        while(item = PyIter_Next(iter)) {
+        while((item = PyIter_Next(iter))) {
             PyObject *words_list;
             Py_ssize_t len;
             if(PyTuple_Check(item)) {
-                if(words_list = PyTuple_GetItem(item, 1)) {
+                if((words_list = PyTuple_GetItem(item, 1))) {
                     if(PySequence_Check(words_list)) {
                         len = PySequence_Length(words_list);
                         if(len > *max_words) *max_words = len;
@@ -160,7 +160,7 @@ static int unpack_doclist(
 
     (*totwords) = 0;
     iter = PyObject_GetIter(doclist);
-    while(item = PyIter_Next(iter)) {
+    while((item = PyIter_Next(iter))) {
         if(!unpack_document(item, words, &doc_label, &queryid, &slackid,
                              &costfactor, &wpos, max_words))
             return 0;
@@ -221,7 +221,19 @@ static int read_learning_parameters(
         else if(!strcmp(type, "ranking")) learn_parm->type = RANKING;
         else if(!strcmp(type, "optimization")) learn_parm->type = OPTIMIZATION;
         else {
-            PyErr_SetString(PyExc_ValueError, "unknown learning type specified");
+            PyErr_SetString(PyExc_ValueError, "unknown learning type specified. Valid types are: 'classification', 'regression', 'ranking' and 'optimization'.");
+            return 0;
+        }
+    }
+    if(PyMapping_HasKeyString(kwds, "kernel")) {
+        char *kernel = PyString_AsString(PyMapping_GetItemString(kwds, "kernel"));
+        if(!kernel) return 0;
+        else if(!strcmp(kernel, "linear")) kernel_parm->kernel_type = LINEAR;
+        else if(!strcmp(kernel, "polynomial")) kernel_parm->kernel_type = POLY;
+        else if(!strcmp(kernel, "rbf")) kernel_parm->kernel_type = RBF;
+        else if(!strcmp(kernel, "sigmoid")) kernel_parm->kernel_type = SIGMOID;
+        else {
+            PyErr_SetString(PyExc_ValueError, "unknown kernel type specified. Valid types are: 'linear', 'polynomial', 'rbf' and 'sigmoid'.");
             return 0;
         }
     }
@@ -229,9 +241,29 @@ static int read_learning_parameters(
         PyObject *vobj = PyMapping_GetItemString(kwds, "verbosity");
         (*verbosity) = PyNumber_AsSsize_t(vobj, 0);
     }
+    if(PyMapping_HasKeyString(kwds, "C")) {
+        PyObject *vobj = PyMapping_GetItemString(kwds, "C");
+        learn_parm->svm_c = PyFloat_AsDouble(vobj);
+    }
+    if(PyMapping_HasKeyString(kwds, "poly_degree")) {
+        PyObject *vobj = PyMapping_GetItemString(kwds, "poly_degree");
+        kernel_parm->poly_degree = PyNumber_AsSsize_t(vobj, 0);
+    }
+    if(PyMapping_HasKeyString(kwds, "rbf_gamma")) {
+        PyObject *vobj = PyMapping_GetItemString(kwds, "rbf_gamma");
+        kernel_parm->rbf_gamma = PyFloat_AsDouble(vobj);
+    }
+    if(PyMapping_HasKeyString(kwds, "coef_lin")) {
+        PyObject *vobj = PyMapping_GetItemString(kwds, "coef_lin");
+        kernel_parm->coef_lin = PyFloat_AsDouble(vobj);
+    }
+    if(PyMapping_HasKeyString(kwds, "coef_const")) {
+        PyObject *vobj = PyMapping_GetItemString(kwds, "coef_const");
+        kernel_parm->coef_const = PyFloat_AsDouble(vobj);
+    }
 
     if(learn_parm->svm_iter_to_shrink == -9999) {
-        if(kernel_parm->kernel_type == LINEAR) 
+        if(kernel_parm->kernel_type == LINEAR)
             learn_parm->svm_iter_to_shrink=2;
         else
             learn_parm->svm_iter_to_shrink=100;
@@ -254,7 +286,7 @@ static PyObject *svm_learn(PyObject *self, PyObject *args, PyObject *kwds)
 {
     DOC **docs;
     double* target;
-    int totwords, totdoc, i;
+    int totwords, totdoc;
     KERNEL_CACHE *kernel_cache;
     LEARN_PARM learn_parm;
     KERNEL_PARM kernel_parm;
@@ -276,19 +308,19 @@ static PyObject *svm_learn(PyObject *self, PyObject *args, PyObject *kwds)
         kernel_cache = kernel_cache_init(totdoc, learn_parm.kernel_cache_size);
 
     if(learn_parm.type == CLASSIFICATION) {
-        svm_learn_classification(docs, target, totdoc, totwords, &learn_parm, 
+        svm_learn_classification(docs, target, totdoc, totwords, &learn_parm,
                                  &kernel_parm, kernel_cache, model, NULL /* alpha_in */);
     }
     else if(learn_parm.type == REGRESSION) {
-        svm_learn_regression(docs, target, totdoc, totwords, &learn_parm, 
+        svm_learn_regression(docs, target, totdoc, totwords, &learn_parm,
                              &kernel_parm, &kernel_cache, model);
     }
     else if(learn_parm.type == RANKING) {
-        svm_learn_ranking(docs, target, totdoc, totwords, &learn_parm, 
+        svm_learn_ranking(docs, target, totdoc, totwords, &learn_parm,
                           &kernel_parm, &kernel_cache, model);
     }
     else if(learn_parm.type == OPTIMIZATION) {
-        svm_learn_optimization(docs, target, totdoc, totwords, &learn_parm, 
+        svm_learn_optimization(docs, target, totdoc, totwords, &learn_parm,
                                &kernel_parm, kernel_cache, model, NULL /* alpha_in */);
     }
 
@@ -324,9 +356,6 @@ static PyObject *svm_classify(PyObject *self, PyObject *args) {
     int docnum = 0, j;
     double dist;
 
-    long i;
-    SVECTOR *f;
-
     DOC *doc;
     WORD *words;
     long queryid, slackid, wnum;
@@ -349,7 +378,7 @@ static PyObject *svm_classify(PyObject *self, PyObject *args) {
     result = PyList_New(max_doc);
 
     iter = PyObject_GetIter(doclist);
-    while(item = PyIter_Next(iter)) {
+    while((item = PyIter_Next(iter))) {
         unpack_document(item, words, &doc_label, &queryid, &slackid, &costfactor,
                         &wnum, max_words);
         Py_DECREF(item);
