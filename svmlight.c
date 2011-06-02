@@ -393,10 +393,9 @@ static PyObject *svm_classify(PyObject *self, PyObject *args) {
             dist = classify_example_linear(model, doc);
             free_example(doc, 1);
         } else {
-            PyErr_SetString(PyExc_NotImplementedError, "classify not implemented for non-linear kernels");
-            Py_DECREF(iter);
-            free(words);
-            return NULL;
+            doc = create_example(-1, 0, 0, 0.0, create_svector(words, "", 1.0));
+            dist = classify_example(model, doc);
+            free_example(doc, 1);
         }
         PyList_SetItem(result, docnum, PyFloat_FromDouble(dist));
         docnum++;
