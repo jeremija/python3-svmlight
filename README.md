@@ -28,8 +28,7 @@ Reference
 
 If you type `help(svmlight)`, you will see that there are currently three functions.
 
-    learn(...)
-        learn(training_data, **options) -> model
+    learn(training_data, **options) -> model
 
 Train a model based on a set of training data. The training data should be in the following format:
 
@@ -39,15 +38,24 @@ or
 
     >> (<label>, [(<feature>, <value>), ...], <queryid>)
 
-See examples/data.py for an example of some training data. The result of this call is a model that you can pass to classify().
+See examples/data.py for an example of some training data. Available options include (corresponding roughly to the command-line options for `svmlight` detailed on [this page](http://svmlight.joachims.org/) under the section titled "How to use"):
 
-    classify(...)
-        classify(model, test_data, **options) -> predictions
+ - `type`: select between 'classification', 'regression', 'ranking' (preference ranking), and 'optimization'.
+ - `kernel`: select between 'linear', 'polynomial', 'rbf', and 'sigmoid'.
+ - `verbosity`: set the verbosity level (default 0).
+ - `C`: trade-off between training error and margin.
+ - `poly_degree`: parameter d in polynomial kernel.
+ - `rbf_gamma`: parameter gamma in rbf kernel.
+ - `coef_lin`
+ - `coef_const`
+
+The result of this call is a model that you can pass to classify().
+
+    classify(model, test_data, **options) -> predictions
 
 Classify a set of test data using the provided model. The test data should be in the same format as training data (see above). The result will be a list of floats, corresponding to predicted labels for each of the test instances.
 
-    write_model(...)
-        write_model(model, filename) -> None
+    write_model(model, filename) -> None
 
 Write the provided model to the specified file. The file format used is the same format as that used by the command-line `svmlight` program.
 
