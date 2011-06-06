@@ -42,8 +42,11 @@ typedef struct {
 /* Destructor function for MODEL_AND_DOCS. */
 static void free_model_and_docs(void *ptr);
 
+static void free_just_model(void *ptr);
+
 static PyObject *svm_learn(PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject *py_write_model(PyObject *self, PyObject *args);
+static PyObject *py_read_model(PyObject *self, PyObject *args);
 static PyObject *svm_classify(PyObject *self, PyObject *args);
 
 static PyMethodDef PySVMLightMethods[] = {
@@ -53,6 +56,8 @@ static PyMethodDef PySVMLightMethods[] = {
      "classify(model, test_data, **options) -> predictions"},
     {"write_model", py_write_model, METH_VARARGS,
      "write_model(model, filename) -> None"},
+    {"read_model", py_read_model, METH_VARARGS,
+     "read_model(filename) -> model"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -282,6 +287,11 @@ void free_model_and_docs(void *ptr) {
     free(ptr);
 }
 
+void free_just_model(void *ptr) {
+    free_model(GET_MODEL(ptr), 1);
+    free(ptr);
+}
+
 static PyObject *svm_learn(PyObject *self, PyObject *args, PyObject *kwds)
 {
     DOC **docs;
@@ -347,6 +357,22 @@ static PyObject *py_write_model(PyObject *self, PyObject *args) {
     write_model(modelfile, model);
 
     Py_RETURN_NONE;
+}
+
+static PyObject *py_read_model(PyObject *self, PyObject *args) {
+    char *modelfile;
+    MODEL *model;
+    MODEL_AND_DOCS *result;
+
+    if(!PyArg_ParseTuple(args, "s", &modelfile))
+        return NULL;
+
+    model = read_model(modelfile);
+    result = (MODEL_AND_DOCS *)malloc(sizeof(MODEL_AND_DOCS));
+    result->model = model;
+    result->docs = 0;
+    result->totdoc = 0;
+    return PyCObject_FromVoidPtr(result, free_just_model);
 }
 
 static PyObject *svm_classify(PyObject *self, PyObject *args) {

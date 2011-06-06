@@ -59,3 +59,7 @@ Classify a set of test data using the provided model. The test data should be in
 
 Write the provided model to the specified file. The file format used is the same format as that used by the command-line `svmlight` program.
 
+    read_model(filename) -> model
+
+Read a model that was saved using write_model().
+
