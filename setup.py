@@ -18,7 +18,7 @@ except ValueError:
   pass
 
 setup(name         = 'svmlight',
-      version      = '0.2',
+      version      = '0.3',
       description  = 'Interface to Thorsten Joachims\' SVM-Light',
       author       = "William Cauchois",
       author_email = "wcauchois@gmail.com",
