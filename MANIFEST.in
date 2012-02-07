@@ -1,0 +1,3 @@
+include setup.py README.md
+recursive-include svmlight *
+recursive-include lib *
