@@ -17,7 +17,13 @@ setup(name         = 'svmlight',
       author_email = "wcauchois@gmail.com",
       url          = "http://bitbucket.org/wcauchois/pysvmlight",
       long_description = open('README.md').read(),
+      classifiers  = [
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Science/Research',
+        'Programming Language :: Python',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence'
+      ],
       ext_modules = [
         Extension('svmlight', include_dirs = ['lib/'],
-                  sources = ['svmlight.c'] + lib_sources)
+                  sources = ['svmlight/svmlight.c'] + lib_sources)
       ])
