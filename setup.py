@@ -12,6 +12,7 @@ lib_sources.remove('lib/svm_classify.c') # this file implements the "classify" b
                                          # again!
 
 setup(name         = 'svmlight',
+      version      = '0.2',
       description  = 'Interface to Thorsten Joachims\' SVM-Light',
       author       = "William Cauchois",
       author_email = "wcauchois@gmail.com",
