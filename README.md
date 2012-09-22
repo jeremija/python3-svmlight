@@ -48,6 +48,7 @@ See examples/data.py for an example of some training data. Available options inc
  - `rbf_gamma`: parameter gamma in rbf kernel.
  - `coef_lin`
  - `coef_const`
+ - `costratio` (corresponds to `-j` option to `svm_learn`)
 
 The result of this call is a model that you can pass to classify().
 
