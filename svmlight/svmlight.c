@@ -266,6 +266,10 @@ static int read_learning_parameters(
         PyObject *vobj = PyMapping_GetItemString(kwds, "coef_const");
         kernel_parm->coef_const = PyFloat_AsDouble(vobj);
     }
+    if(PyMapping_HasKeyString(kwds, "costratio")) {
+        PyObject *vobj = PyMapping_GetItemString(kwds, "costratio");
+        learn_parm->svm_costratio = PyFloat_AsDouble(vobj);
+    }
 
     if(learn_parm->svm_iter_to_shrink == -9999) {
         if(kernel_parm->kernel_type == LINEAR)
