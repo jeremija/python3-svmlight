@@ -415,8 +415,10 @@ static PyObject *svm_classify(PyObject *self, PyObject *args) {
 
     iter = PyObject_GetIter(doclist);
     while((item = PyIter_Next(iter))) {
-        unpack_document(item, words, &doc_label, &queryid, &slackid, &costfactor,
-                        &wnum, max_words);
+        if (!unpack_document(item, words, &doc_label, &queryid, &slackid,
+                &costfactor, &wnum, max_words)) {
+            break;
+        }
         Py_DECREF(item);
         if(model->kernel_parm.kernel_type == 0) { /* Linear kernel */
             /* "Check if feature numbers are not larger than in model. Remove
