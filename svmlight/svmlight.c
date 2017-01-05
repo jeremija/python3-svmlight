@@ -40,9 +40,9 @@ typedef struct {
 #define GET_MODEL(ptr) ((MODEL_AND_DOCS *)ptr)->model
 
 /* Destructor function for MODEL_AND_DOCS. */
-static void free_model_and_docs(void *ptr);
+static void free_model_and_docs(PyObject *ptr);
 
-static void free_just_model(void *ptr);
+static void free_just_model(PyObject *ptr);
 
 static PyObject *svm_learn(PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject *py_write_model(PyObject *self, PyObject *args);
@@ -224,7 +224,7 @@ static int read_learning_parameters(
     learn_parm->type = CLASSIFICATION;
 
     if(PyMapping_HasKeyString(kwds, "type")) {
-        char *type = PyBytes_AsString(PyMapping_GetItemString(kwds, "type"));
+        char *type = PyUnicode_AsUTF8(PyMapping_GetItemString(kwds, "type"));
         if(!type) return 0;
         else if(!strcmp(type, "classification")) learn_parm->type = CLASSIFICATION;
         else if(!strcmp(type, "regression")) learn_parm->type = REGRESSION;
@@ -236,7 +236,7 @@ static int read_learning_parameters(
         }
     }
     if(PyMapping_HasKeyString(kwds, "kernel")) {
-        char *kernel = PyBytes_AsString(PyMapping_GetItemString(kwds, "kernel"));
+        char *kernel = PyUnicode_AsUTF8(PyMapping_GetItemString(kwds, "kernel"));
         if(!kernel) return 0;
         else if(!strcmp(kernel, "linear")) kernel_parm->kernel_type = LINEAR;
         else if(!strcmp(kernel, "polynomial")) kernel_parm->kernel_type = POLY;
@@ -286,17 +286,17 @@ static int read_learning_parameters(
     return 1;
 }
 
-void free_model_and_docs(void *ptr) {
-    int i;
-    MODEL_AND_DOCS *obj = (MODEL_AND_DOCS *)ptr;
-    free_model(obj->model, 0);
-    for(i = 0; i < obj->totdoc; i++)
-        free_example(obj->docs[i], 1);
-    free(obj->docs);
+void free_model_and_docs(PyObject *obj) {
+    MODEL_AND_DOCS *ptr = (MODEL_AND_DOCS *) PyCapsule_GetPointer(obj, NULL);
+    free_model(ptr->model, 0);
+    for(int i = 0; i < ptr->totdoc; i++)
+        free_example(ptr->docs[i], 1);
+    free(ptr->docs);
     free(ptr);
 }
 
-void free_just_model(void *ptr) {
+void free_just_model(PyObject *obj) {
+    void *ptr = PyCapsule_GetPointer(obj, NULL);
     free_model(GET_MODEL(ptr), 1);
     free(ptr);
 }
@@ -352,6 +352,7 @@ static PyObject *svm_learn(PyObject *self, PyObject *args, PyObject *kwds)
     result->model = model;
     result->docs = docs;
     result->totdoc = totdoc;
+
     return PyCapsule_New(result, NULL, free_model_and_docs);
 }
 
