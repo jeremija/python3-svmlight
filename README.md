@@ -1,10 +1,15 @@
+[![Build Status](https://travis-ci.org/jeremija/python3-svmlight.svg?branch=master)](https://travis-ci.org/jeremija/python3-svmlight)
+
 Note: this is a fork of [pysvmlight](https://bitbucket.org/wcauchois/pysvmlight/src) made to work under Python 3.
 
 It uses the Python's Capsule API instead of the deprecated CObject API.
 
 The changes were made by Jerko Steiner.
 
-Py3SVMLight
+Please note the original svm library is copyrighted and only non-commercial use
+is allowed.
+
+SVMLight for Python3
 ==========
 
 A Python binding to the [SVM-Light](http://svmlight.joachims.org/) support vector machine library by Thorsten Joachims.
