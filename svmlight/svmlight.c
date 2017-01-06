@@ -289,7 +289,8 @@ static int read_learning_parameters(
 void free_model_and_docs(PyObject *obj) {
     MODEL_AND_DOCS *ptr = (MODEL_AND_DOCS *) PyCapsule_GetPointer(obj, NULL);
     free_model(ptr->model, 0);
-    for(int i = 0; i < ptr->totdoc; i++)
+    int i;
+    for(i = 0; i < ptr->totdoc; i++)
         free_example(ptr->docs[i], 1);
     free(ptr->docs);
     free(ptr);
