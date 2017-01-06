@@ -4,5 +4,5 @@ python:
 addons:
   apt:
     packages:
-      - gcc-4.8
+      - gcc
 script: "./ci.sh"
